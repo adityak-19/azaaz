@@ -93,172 +93,211 @@ export default function Writeup({ params: paramsPromise }) {
         <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
       </div>
 
-      <div className="flex relative z-10">
-        {/* Enhanced Sidebar - Fixed height and centered */}
-        <div className="w-72 fixed top-1/2 transform -translate-y-1/2 left-0 h-[70vh] bg-gradient-to-b from-gray-900/80 to-[#0a192f]/80 backdrop-blur-sm p-6 border-r border-cyan-500/30 shadow-lg rounded-r-2xl">
-          <div className="h-full overflow-y-auto scrollbar-hide">
-            
-            {Object.entries(writeups[event] || {}).map(([categoryName, challenges]) => (
-              <div key={categoryName} className="mb-6 bg-black/20 rounded-lg p-3 backdrop-blur-sm border border-cyan-500/10">
-                <h3 className="text-cyan-400 font-bold mb-2 flex items-center text-sm">
-                  <span className="text-purple-400 mr-2">&gt;</span>
-                  {categoryName}
-                </h3>
-                <ul className="space-y-1 ml-3">
-                  {challenges.map((challenge) => (
-                    <li key={challenge.slug} className="relative">
-                      <Link
-                        href={`/writeups/${encodeURIComponent(event)}/${encodeURIComponent(categoryName)}/${encodeURIComponent(challenge.slug)}`}
-                        className={`block transition-all duration-200 py-0.5 px-2 rounded text-xs ${
-                          challenge.slug === slug
-                            ? 'text-cyan-400 bg-cyan-500/10 font-medium'
-                            : 'text-slate-300 hover:text-cyan-400 hover:bg-cyan-500/5'
-                        }`}
-                      >
-                        {challenge.slug === slug && (
-                          <span className="absolute left-[-1rem] top-1/2 transform -translate-y-1/2 text-cyan-400">
-                            →
-                          </span>
-                        )}
-                        {challenge.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+      <div className="relative z-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+          {/* Back button */}
+          <Link 
+            href={`/writeups/${event}`}
+            className="text-green-500 hover:text-green-400 mb-6 sm:mb-8 inline-block"
+          >
+            ← Back to Event
+          </Link>
+
+          {/* Date */}
+          <div className="text-gray-400 mb-3 sm:mb-4">{writeup.date}</div>
+
+          {/* Title */}
+          <h1 className="text-green-500 text-2xl sm:text-3xl font-bold">{writeup.title}</h1>
+
+          {/* Event, Category, Difficulty Tags */}
+          <div className="flex flex-wrap gap-2 mt-2 sm:mt-3 mb-6 sm:mb-8">
+            <span className="px-3 py-1 rounded-md text-sm bg-gray-800/80 backdrop-blur-sm text-gray-300">
+              📅 {writeup.event}
+            </span>
+            <span className="px-3 py-1 rounded-md text-sm bg-gray-800/80 backdrop-blur-sm text-blue-300">
+              🔎 {writeup.category}
+            </span>
+            <span className="px-3 py-1 rounded-md text-sm bg-gray-800/80 backdrop-blur-sm text-green-300">
+              🎯 {writeup.difficulty}
+            </span>
           </div>
-        </div>
 
-        {/* Main Content - Adjusted margin to account for fixed sidebar */}
-        <div className="flex-1 ml-72">
-          <div className="max-w-4xl mx-auto px-4 py-12">
-            <Link 
-              href={`/writeups/${event}`}
-              className="text-green-500 hover:text-green-400 mb-8 inline-block"
-            >
-              ← Back to Event
-            </Link>
-
-            {/* Date */}
-            <div className="text-gray-400 mb-4">{writeup.date}</div>
-
-            {/* Title */}
-            <h1 className="text-green-500 text-3xl font-bold">{writeup.title}</h1>
-
-            {/* Event, Category, Difficulty Tags Below Title */}
-            <div className="flex flex-wrap gap-2 mt-3 mb-8">
-              <span className="px-3 py-1 rounded-md text-sm bg-gray-800/80 backdrop-blur-sm text-gray-300">
-                📅 {writeup.event}
-              </span>
-              <span className="px-3 py-1 rounded-md text-sm bg-gray-800/80 backdrop-blur-sm text-blue-300">
-                🔎 {writeup.category}
-              </span>
-              <span className="px-3 py-1 rounded-md text-sm bg-gray-800/80 backdrop-blur-sm text-green-300">
-                🎯 {writeup.difficulty}
-              </span>
-            </div>
-
-            {/* Authors */}
-            {writeup.authors?.length > 0 && (
-              <div className="flex items-center space-x-4 mb-8">
-                {writeup.authors.map((author, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <img
-                      src={author.avatar}
-                      alt={author.name}
-                      className="w-12 h-12 rounded-full"
-                    />
-                    <span className="text-white">{author.name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Introduction */}
-            {writeup.introduction && (
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-4 text-white">{writeup.introduction}</h2>
-                <p className="text-gray-300">{writeup.introduction}</p>
-              </div>
-            )}
-
-            {/* Tags */}
-            {writeup.tags?.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-12">
-                {writeup.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 rounded-md text-sm bg-green-500/20 text-green-500"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Table of Contents */}
-            {writeup.tableOfContents?.length > 0 && (
-              <div className="mb-12">
-                <h2 className="text-3xl font-bold mb-4 text-white">Table of Contents</h2>
-                <div className="text-green-500">
-                  {writeup.tableOfContents.map((item, index) => (
-                    <a key={index} href={`#${item.anchor}`} className="block hover:underline">
-                      {item.title}
-                    </a>
-                  ))}
+          {/* Authors - Made responsive */}
+          {writeup.authors?.length > 0 && (
+            <div className="flex flex-wrap items-center gap-4 mb-6 sm:mb-8">
+              {writeup.authors.map((author, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <img
+                    src={author.avatar}
+                    alt={author.name}
+                    className="w-8 h-8 sm:w-12 sm:h-12 rounded-full"
+                  />
+                  <span className="text-white text-sm sm:text-base">{author.name}</span>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
+          )}
 
-            {/* Main Content */}
-            <div className="prose prose-invert">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  img({ node, ...props }) {
-                    return (
+          {/* Introduction */}
+          {writeup.introduction && (
+            <div className="mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-white">{writeup.introduction}</h2>
+              <p className="text-gray-300 text-sm sm:text-base">{writeup.introduction}</p>
+            </div>
+          )}
+
+          {/* Tags */}
+          {writeup.tags?.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8 sm:mb-12">
+              {writeup.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 rounded-md text-sm bg-green-500/20 text-green-500"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Table of Contents */}
+          {writeup.tableOfContents?.length > 0 && (
+            <div className="mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-white">Table of Contents</h2>
+              <div className="text-green-500">
+                {writeup.tableOfContents.map((item, index) => (
+                  <a key={index} href={`#${item.anchor}`} className="block hover:underline">
+                    {item.title}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Main Content with fixed overflow issues */}
+          <article className="prose prose-sm sm:prose prose-invert max-w-none overflow-hidden">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                img({ node, ...props }) {
+                  return (
+                    <div className="overflow-hidden my-8">
                       <img
-                        className="rounded-lg shadow-lg my-8 max-w-full"
+                        className="rounded-lg shadow-lg max-w-full h-auto mx-auto"
+                        loading="lazy"
                         {...props}
                       />
-                    );
-                  },
-                  h1({ node, ...props }) {
-                    return <h1 className="text-green-500 text-2xl font-bold mt-8 mb-4" {...props} />;
-                  },
-                  h2({ node, ...props }) {
-                    return <h2 className="text-green-500 text-xl font-semibold mt-6 mb-3" {...props} />;
-                  },
-                  h3({ node, ...props }) {
-                    return <h3 className="text-white text-lg font-medium mt-4 mb-2" {...props} />;
-                  },
-                  blockquote({ node, ...props }) {
-                    return (
-                      <blockquote className="border-l-4 border-green-500 pl-4 italic my-4" {...props} />
-                    );
-                  },
-                  p({ node, ...props }) {
-                    return <p className="text-gray-300 my-4 leading-relaxed" {...props} />;
-                  },
-                  code({ node, inline, className, children, ...props }) {
-                    const match = /language-(\w+)/.exec(className || '');
-                    return !inline && match ? (
-                      <SyntaxHighlighter style={vscDarkPlus} language={match[1]} PreTag="div" {...props}>
+                    </div>
+                  );
+                },
+                pre({ node, children, ...props }) {
+                  return (
+                    <div className="overflow-x-auto my-4 rounded-lg bg-gray-800">
+                      <pre {...props} className="p-4">
+                        {children}
+                      </pre>
+                    </div>
+                  );
+                },
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '');
+                  return !inline && match ? (
+                    <div className="overflow-x-auto my-4">
+                      <SyntaxHighlighter 
+                        style={vscDarkPlus} 
+                        language={match[1]} 
+                        PreTag="div"
+                        customStyle={{
+                          borderRadius: '0.5rem',
+                          padding: '1rem',
+                          fontSize: '0.875rem',
+                          lineHeight: '1.5'
+                        }}
+                        {...props}
+                      >
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>
-                    ) : (
-                      <code className="bg-gray-800 px-1.5 py-0.5 rounded text-gray-300" {...props}>
-                        {children}
-                      </code>
-                    );
-                  }
-                }}
-              >
-                {writeup.content || "No content available"}
-              </ReactMarkdown>
-            </div>
-          </div>
+                    </div>
+                  ) : (
+                    <code className="bg-gray-800 px-1.5 py-0.5 rounded text-gray-300 text-sm break-all">
+                      {children}
+                    </code>
+                  );
+                },
+                table({ node, ...props }) {
+                  return (
+                    <div className="overflow-x-auto my-4">
+                      <table className="min-w-full divide-y divide-gray-700" {...props} />
+                    </div>
+                  );
+                },
+                p({ node, ...props }) {
+                  return (
+                    <p className="text-gray-300 my-4 leading-relaxed break-words whitespace-pre-wrap" {...props} />
+                  );
+                },
+                h1({ node, ...props }) {
+                  return (
+                    <h1 
+                      className="text-green-500 text-2xl font-bold mt-8 mb-4 break-words" 
+                      {...props} 
+                    />
+                  );
+                },
+                h2({ node, ...props }) {
+                  return (
+                    <h2 
+                      className="text-green-500 text-xl font-semibold mt-6 mb-3 break-words" 
+                      {...props} 
+                    />
+                  );
+                },
+                h3({ node, ...props }) {
+                  return (
+                    <h3 
+                      className="text-white text-lg font-medium mt-4 mb-2 break-words" 
+                      {...props} 
+                    />
+                  );
+                },
+                blockquote({ node, ...props }) {
+                  return (
+                    <blockquote 
+                      className="border-l-4 border-green-500 pl-4 my-4 italic text-gray-300 break-words"
+                      {...props} 
+                    />
+                  );
+                },
+                a({ node, ...props }) {
+                  return (
+                    <a 
+                      className="text-green-500 hover:text-green-400 break-words"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      {...props}
+                    />
+                  );
+                },
+                ul({ node, ...props }) {
+                  return (
+                    <ul className="list-disc pl-5 my-4 space-y-2" {...props} />
+                  );
+                },
+                ol({ node, ...props }) {
+                  return (
+                    <ol className="list-decimal pl-5 my-4 space-y-2" {...props} />
+                  );
+                },
+                li({ node, ...props }) {
+                  return (
+                    <li className="text-gray-300 break-words" {...props} />
+                  );
+                }
+              }}
+            >
+              {writeup.content || "No content available"}
+            </ReactMarkdown>
+          </article>
         </div>
       </div>
     </main>
