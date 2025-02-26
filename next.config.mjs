@@ -5,6 +5,8 @@ const nextConfig = {
   },
   env: {
     GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+    GITHUB_USERNAME: process.env.GITHUB_USERNAME,
+    GITHUB_REPO: process.env.GITHUB_REPO,
   }
 };
 

@@ -3,25 +3,23 @@ import matter from "gray-matter";
 
 export async function getWriteups() {
   const writeups = {};
-  const owner = 'adityak-19';  // Your GitHub username
-  const repo = 'z-writeups';   // Your GitHub repository name
-  const branch = 'main';       // Your branch name
+  const owner = process.env.GITHUB_USERNAME || 'YOUR_USERNAME';
+  const repo = process.env.GITHUB_REPO || 'YOUR_REPO';
+  const branch = 'main';
+  const baseUrl = `https://api.github.com/repos/${owner}/${repo}/contents/public/writeups`;
 
   try {
-    // Fetch the writeups directory listing from GitHub
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/contents/writeups?ref=${branch}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json'
-        },
-        cache: 'no-store'
+    const response = await fetch(baseUrl, {
+      headers: {
+        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'X-GitHub-Api-Version': '2022-11-28'
       }
-    );
+    });
 
     if (!response.ok) {
-      console.error('GitHub API Response:', await response.text());
+      const errorText = await response.text();
+      console.error('GitHub API Response:', errorText);
       throw new Error(`GitHub API error: ${response.status}`);
     }
 
@@ -31,17 +29,13 @@ export async function getWriteups() {
       if (event.type === 'dir') {
         writeups[event.name] = {};
         
-        // Fetch categories for each event
-        const categoriesResponse = await fetch(
-          `https://api.github.com/repos/${owner}/${repo}/contents/writeups/${event.name}?ref=${branch}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
-              'Accept': 'application/vnd.github.v3+json'
-            },
-            cache: 'no-store'
+        const categoriesUrl = `${baseUrl}/${event.name}`;
+        const categoriesResponse = await fetch(categoriesUrl, {
+          headers: {
+            'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json'
           }
-        );
+        });
 
         if (!categoriesResponse.ok) continue;
         const categories = await categoriesResponse.json();
@@ -50,17 +44,13 @@ export async function getWriteups() {
           if (category.type === 'dir' && category.name !== 'images') {
             writeups[event.name][category.name] = [];
 
-            // Fetch markdown files for each category
-            const filesResponse = await fetch(
-              `https://api.github.com/repos/${owner}/${repo}/contents/writeups/${event.name}/${category.name}?ref=${branch}`,
-              {
-                headers: {
-                  'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
-                  'Accept': 'application/vnd.github.v3+json'
-                },
-                cache: 'no-store'
+            const filesUrl = `${baseUrl}/${event.name}/${category.name}`;
+            const filesResponse = await fetch(filesUrl, {
+              headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
               }
-            );
+            });
 
             if (!filesResponse.ok) continue;
             const files = await filesResponse.json();
@@ -70,17 +60,14 @@ export async function getWriteups() {
                 const contentResponse = await fetch(file.download_url);
                 const content = await contentResponse.text();
                 const { data, content: mdContent } = matter(content);
-                
-                // Handle image paths to use GitHub raw URLs
-                const image = data.image ? 
-                  `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/writeups/${event.name}/images/${data.image}` : 
-                  null;
 
                 writeups[event.name][category.name].push({
                   slug: file.name.replace('.md', ''),
                   content: mdContent,
                   ...data,
-                  image
+                  image: data.image ? 
+                    `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/public/writeups/${event.name}/images/${data.image}` : 
+                    null
                 });
               }
             }
