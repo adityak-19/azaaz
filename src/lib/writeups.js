@@ -1,16 +1,14 @@
 "use server";
-
+import matter from "gray-matter";
 import fs from "fs/promises";
 import path from "path";
-import matter from "gray-matter";
-
-const writeupsDir = path.join(process.cwd(), "public/writeups");
 
 export async function getWriteups() {
   const writeups = {};
+  const writeupsDir = path.join(process.cwd(), "public/writeups");
 
   try {
-    // Read all event directories
+    // Read all event directories from local public/writeups folder
     const events = await fs.readdir(writeupsDir);
 
     for (const event of events) {
@@ -27,7 +25,7 @@ export async function getWriteups() {
           const categoryPath = path.join(eventPath, category);
           const categoryStat = await fs.stat(categoryPath);
 
-          if (categoryStat.isDirectory()) {
+          if (categoryStat.isDirectory() && category !== 'images') {
             writeups[event][category] = [];
 
             // Read markdown files in each category
@@ -36,19 +34,14 @@ export async function getWriteups() {
             for (const file of files) {
               if (file.endsWith('.md')) {
                 const filePath = path.join(categoryPath, file);
-                const fileContent = await fs.readFile(filePath, 'utf-8');
-                const { data, content } = matter(fileContent);
-
-                // Handle image paths
-                const imagePath = data.image ? 
-                  `/writeups/${event}/images/${path.basename(data.image)}` : 
-                  null;
+                const content = await fs.readFile(filePath, 'utf-8');
+                const { data, content: mdContent } = matter(content);
 
                 writeups[event][category].push({
                   slug: file.replace('.md', ''),
-                  content,
+                  content: mdContent,
                   ...data,
-                  image: imagePath
+                  image: data.image ? `/writeups/${event}/images/${data.image}` : null
                 });
               }
             }
